@@ -5,6 +5,10 @@ from PIL import ImageTk, Image
 
 from ultralytics import YOLO
 
+import torch
+
+torch.cuda.set_device(0) # Set to your desired GPU number
+
 # Load the YOLOv8 model
 model = YOLO('Fire.pt')
 
@@ -39,7 +43,7 @@ class Window(Tk):
         # Resize image
         resized = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
         # print("Resized Dimensions: ", resized.shape)
-        results = model(resized)
+        results = model(resized, device='gpu')
 
         # Visualize the results on the frame
         annotated_frame = results[0].plot()
