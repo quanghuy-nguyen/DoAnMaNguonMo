@@ -1,20 +1,10 @@
 import tkinter as tk
 import cv2
-<<<<<<< HEAD
 from PIL import Image, ImageTk
 from ultralytics import YOLO
 import torch
 import time
 from telegram import Bot, ParseMode
-=======
-from PIL import ImageTk, Image
-from ultralytics import YOLO
-
-
-from telegram import Bot, ParseMode
-
-
->>>>>>> 9d31e2a1f4caaec15e18acf6823141cc2db531bf
 
 # Load the YOLOv8 model
 model = YOLO('Fire.pt')
@@ -27,19 +17,10 @@ TELEGRAM_CHAT_ID = 1886522458
 video_path = "Fire.mp4"
 start_time = time.time()
 
-<<<<<<< HEAD
 class CameraApp:
     def __init__(self, root, camera_index=0):
         self.root = root
         self.root.title("Tkinter Camera GUI")
-=======
-
-class Window(Tk):
-    def __init__(self):
-        super().__init__()
-        self.wm_title("Camera")
-        self.geometry("550x420")
->>>>>>> 9d31e2a1f4caaec15e18acf6823141cc2db531bf
 
         # Open the camera
         self.cap = cv2.VideoCapture(video_path)
@@ -48,7 +29,6 @@ class Window(Tk):
         self.canvas = tk.Canvas(root)
         self.canvas.pack()
 
-<<<<<<< HEAD
         # Create buttons for capturing a photo and recording a video
         self.capture_button = tk.Button(root, text="Capture Photo", command=self.capture_photo)
         self.capture_button.place(x=310, y=510, width=100, height=50)
@@ -173,78 +153,6 @@ class Window(Tk):
             self.toggle_record()
         self.cap.release()
         self.root.destroy()
-=======
-    def show_frames(self):
-        ret, frame = self.cap.read()
-        # take width, height of image
-        scale_percent = 30  # percent of original size
-        width = int(frame.shape[1] * scale_percent / 100)
-        height = int(frame.shape[0] * scale_percent / 100)
-        dim = (width, height)
-
-        # Resize image
-        resized = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
-        results = model(resized)
-
-        # Visualize the results on the frame
-        annotated_frame = results[0].plot()
-
-        # Convert cv2 image to PIL Image
-        cv2image = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)
-
-        img = Image.fromarray(cv2image)
-
-        # Convert PIL Image to tkinter image
-        tkimage = ImageTk.PhotoImage(image=img)
-        self.label.imgtk = tkimage
-        self.label.configure(image=tkimage)
-
-        # Check if fire is detected and send Telegram message if true
-        if fire_detected(results):
-            send_telegram_message("Fire detected!")
-
-        # Repeat after an interval to capture continuously
-        self.label.after(20, self.show_frames)
-
-
-def fire_detected(results_list, confidence_threshold=0.5):
-    """
-    Check if the 'fire' class is detected with confidence greater than the threshold.
-
-    Parameters:
-    - results_list: List of Results objects containing detection information.
-    - confidence_threshold: Confidence threshold for detection.
-
-    Returns:
-    - True if fire is detected in any result, False otherwise.
-    """
-    for results in results_list:
-        boxes = results.boxes  # Assuming boxes are stored in a Boxes object
-        conf = boxes.conf
-        cls = boxes.cls
-
-        # Assuming 'fire' class has index 0
-        fire_indices = (cls == 0) & (conf > confidence_threshold)
-
-        # Filter predictions for the 'fire' class
-        fire_predictions = boxes.xyxy[fire_indices]
-
-        if fire_predictions.size(0) > 0:
-            return True
-
-    return False
-
-
-def send_telegram_message(message):
-    try:
-        # Send message using Telegram bot
-        bot = Bot(token=TELEGRAM_BOT_TOKEN)
-        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message, parse_mode=ParseMode.MARKDOWN)
-        print("Telegram message sent successfully!")
-    except Exception as e:
-        print(f"Error sending Telegram message: {e}")
-
->>>>>>> 9d31e2a1f4caaec15e18acf6823141cc2db531bf
 
 if __name__ == "__main__":
     root = tk.Tk()
