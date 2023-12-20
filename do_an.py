@@ -1,9 +1,10 @@
 import tkinter as tk
-import cv2
 from PIL import Image, ImageTk
+import cv2
 from ultralytics import YOLO
 import torch
 import time
+from datetime import datetime
 from telegram import Bot, ParseMode
 
 # Load the YOLOv8 model
@@ -22,7 +23,6 @@ class CameraApp:
         self.root = root
         self.root.title("Tkinter Camera GUI")
 
-        # Create Entry widgets for Telegram bot token and chat ID
         tk.Label(root, text="Telegram Bot Token:").place(x=10, y=510)
         self.token_entry = tk.Entry(root, width=30)
         self.token_entry.place(x=150, y=510)
@@ -33,38 +33,37 @@ class CameraApp:
         self.chat_id_entry.place(x=150, y=540)
         self.chat_id_entry.insert(0, TELEGRAM_CHAT_ID)
 
-        # Create a button to update Telegram credentials
         self.update_button = tk.Button(root, text="Update Telegram Bot Token & Chat ID", command=self.update_telegram_credentials)
         self.update_button.place(x=350, y=520, width=250, height=25)
 
-        # Create buttons for capturing a photo and recording a video
         self.capture_button = tk.Button(root, text="Capture Photo", command=self.capture_photo)
         self.capture_button.place(x=310, y=570, width=100, height=50)
 
         self.record_button = tk.Button(root, text="Record Video", command=self.toggle_record)
         self.record_button.place(x=210, y=570, width=100, height=50)
 
-        # Create a button to start the video
         self.start_video_button = tk.Button(root, text="Start Video", command=self.start_video)
         self.start_video_button.place(x=110, y=570, width=100, height=50)
 
-        # Create a button to exit the application
         self.exit_button = tk.Button(root, text="Exit", command=self.exit_app)
         self.exit_button.place(x=410, y=570, width=100, height=50)
 
-        # Video recording variables
         self.is_recording = False
         self.video_writer = None
+        self.record_start_time = None
 
-        # Camera variables
-        self.cap = None
-
-        # Canvas for displaying the camera feed
         self.canvas = tk.Canvas(root)
         self.canvas.pack()
 
+        self.time_label = tk.Label(root, text="", font=("Helvetica", 12))
+        self.time_label.place(x=10, y=10)
+
+        self.record_time_label = tk.Label(root, text="", font=("Helvetica", 12))
+        self.record_time_label.place(x=10, y=40)
+
+        self.root.after(1000, self.update)
+
     def start_video(self):
-        # Start playing the video
         self.cap = cv2.VideoCapture(video_path)
         self.update()
 
@@ -129,9 +128,18 @@ class CameraApp:
                     fourcc = cv2.VideoWriter_fourcc(*"XVID")
                     width, height = frame.shape[1], frame.shape[0]
                     self.video_writer = cv2.VideoWriter("recorded_video.avi", fourcc, 20.0, (width, height))
+                    self.record_start_time = time.time()
+
+                elapsed_time = time.time() - self.record_start_time
+                formatted_elapsed_time = time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time))
+                self.record_time_label.config(text=formatted_elapsed_time)
+
                 self.video_writer.write(frame)
 
-            self.root.after(10, self.update)
+            current_datetime = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
+            self.time_label.config(text=current_datetime)
+
+        self.root.after(10, self.update)
 
     def capture_photo(self):
         ret, frame = self.cap.read()
