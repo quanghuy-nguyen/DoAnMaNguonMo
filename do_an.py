@@ -230,7 +230,6 @@ class CameraApp:
                 self.cameraID = 0
                 messagebox.showerror('Camera ID Error', 'Error: Only accept interger!')
 
-
         print(self.cameraID)
         self.cap = cv2.VideoCapture(self.cameraID)
         self.ret, self.frame = self.cap.read()
@@ -365,7 +364,7 @@ class CameraApp:
                 if self.video_writer is None:
                     fourcc = cv2.VideoWriter_fourcc(*"XVID")
                     width, height = self.annotated_frame.shape[1], self.annotated_frame.shape[0]
-                    self.video_path = self.file_path + "/" + datetime.now().strftime("%H_%M_%d_%m_%Y") + ".avi"
+                    self.video_path = self.file_path + "/" + datetime.now().strftime("%H_%M_%S_%M_%d_%m_%Y") + ".avi"
                     self.video_writer = cv2.VideoWriter(self.video_path, fourcc, 5.0, (width, height))
                     self.record_start_time = time.time()
 
@@ -384,7 +383,7 @@ class CameraApp:
         # ret, frame = self.cap.read()
         # if ret:
         if self.file_path != "":
-            self.path_pic = self.file_path + "/" + "captured_photo.jpg"
+            self.path_pic = self.file_path + "/" + datetime.now().strftime("%H_%M_%S_%M_%d_%m_%Y") + "_photo.jpg"
             cv2.imwrite(self.path_pic, self.annotated_frame)
             print("Photo captured!")
         else:
